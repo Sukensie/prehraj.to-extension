@@ -1,0 +1,10 @@
+.next-btn
+{
+    padding: 1em;
+    position: absolute;
+    right: 0;
+    top: 75%;
+    background: red;
+    color: white;
+    font-weight: bold;
+}

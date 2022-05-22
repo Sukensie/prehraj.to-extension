@@ -1,18 +1,23 @@
 {
-    "name": "Přehraj.to autoplay",
-    "version": "1.0.0",
-    "description": "Automatické spouštění dalších dílů na přehraj.to",
-    "manifest_version": 3,
-    "author": "Tomáš Souček",
-    "action":{
-        "default_popup": "index.html",
-        "default_title": "Přehraj.to autoplay"
-    },
-    "permissions": [
-        "webRequest",
-        "storage",
-        "activeTab",
-        "scripting",
-        "tabs"
-    ]
+  "name": "Přehraj.to autoplay",
+  "version": "1.0.0",
+  "description": "Automatické spouštění dalších dílů na přehraj.to 1",
+  "manifest_version": 3,
+  "author": "Tomáš Souček",
+  "permissions": [
+    "tabs"
+  ],
+  "content_scripts" : [
+      {
+          "matches": ["https://prehraj.to/*?plugin=1"],
+          "js": ["script.js"],
+          "css": ["button.css"],
+          "run_at": "document_idle"
+      },
+      {
+        "matches": ["https://prehraj.to/*?plugin=1&query=1"],
+        "js": ["script1.js"],
+        "run_at": "document_end"
+    }
+  ]
 }
