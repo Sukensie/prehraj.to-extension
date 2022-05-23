@@ -4,7 +4,21 @@
     position: absolute;
     right: 0;
     top: 75%;
-    background: red;
+    background: #e84118;
     color: white;
     font-weight: bold;
+    opacity: 0;
+    transition: 0.25s;
+}
+.next-btn:hover
+{
+    background: #ab2f11;
+}
+.show
+{
+    opacity: 1 !important;
+}
+video
+{
+    cursor: pointer !important;
 }

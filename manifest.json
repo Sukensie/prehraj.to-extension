@@ -9,7 +9,7 @@
   ],
   "content_scripts" : [
       {
-          "matches": ["https://prehraj.to/*?plugin=1"],
+          "matches": ["https://prehraj.to/*"],
           "js": ["script.js"],
           "css": ["button.css"],
           "run_at": "document_idle"
