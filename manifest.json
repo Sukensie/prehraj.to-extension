@@ -4,6 +4,10 @@
   "description": "Automatické spouštění dalších dílů na přehraj.to 1",
   "manifest_version": 3,
   "author": "Tomáš Souček",
+  "action":{
+    "default_popup": "index.html",
+    "default_title": "Přehraj.to autoplay"
+  },
   "permissions": [
     "tabs"
   ],
