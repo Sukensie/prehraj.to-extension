@@ -27,6 +27,7 @@ button.addEventListener ("click", function() {
     }
     episode = tmpEpisode;
     
+    
 
     //get series name
     var series = currUrl.replace('https://prehraj.to/', '');
