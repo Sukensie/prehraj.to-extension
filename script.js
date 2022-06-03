@@ -85,9 +85,29 @@ if(body != undefined)
 button.addEventListener ("click", function() {
 
     let currUrl = window.location.href; 
-    var seasonEpisode = currUrl.match(/s[0-9]*[0-9]e[0-9]*[0-9]/); //returns an array
-    var episode = seasonEpisode[0].split('e')[1];
-    var season = seasonEpisode[0].split('e')[0].substring(1);
+    var seasonEpisode = currUrl.match(/s[0-9]*[0-9]e[0-9]*[0-9]/); //returns an array --works only for s01e02 not 01x02
+    var match = /[0-9]/.exec(currUrl); //index
+    if (match) {
+        console.log("match found at " + match.index);
+        console.log(currUrl.substring(0,match.index));
+    }
+    console.log(match.index);
+    if(seasonEpisode == null)
+    {
+        seasonEpisode = currUrl.match(/[0-9]*[0-9]x[0-9]*[0-9]/); //returns an array --works only for s01e02 not 01x02
+        var splitChar = 'x';
+        match.index -= 1; 
+    }
+    else
+    {
+        var splitChar = 'e';
+        match.index -= 2; 
+    }
+    console.log(match.index);
+
+    var episode = seasonEpisode[0].split(splitChar)[1];
+    var season = seasonEpisode[0].split(splitChar)[0].substring(1);
+    
 
     //increment episode number
     var tmpEpisode = parseInt(episode) + 1;
@@ -99,13 +119,10 @@ button.addEventListener ("click", function() {
     episode = tmpEpisode;
 
 
-    
-    
-
     //get series name
-    var series = currUrl.replace('https://prehraj.to/', '');
-    var series = series.substring(0, series.indexOf('-s'));
-
+    var series = currUrl.substring(0, match.index);
+    series = series.replace('https://prehraj.to/', '');
+    
     var newUrl = "https://prehraj.to/hledej/" + series + "%20s" + season + "e" + episode + "?plugin=1&query=1";
 
 
@@ -124,6 +141,10 @@ button.addEventListener ("click", function() {
     else
     {
         history.unshift(series + " s" + season + " e" + episode);//akorát chci číslo epizody o 1 větší //unshift = prepend
+    }
+    while(history.length > 5)
+    {
+        history.pop();
     }
     console.log(history);
 
@@ -146,7 +167,7 @@ button.addEventListener ("click", function() {
 function mousemove(event){
     //console.log("pageX: ",event.pageX,     "pageY: ", event.pageY,     "clientX: ", event.clientX,     "clientY:", event.clientY)
 
-    if(event.pageX > (window.screen.width * 0.9) && event.pageY > (window.screen.height * 0.7) && event.pageY < (window.screen.height * 0.95))
+    if(event.pageX > (window.screen.width * 0.9) && event.pageY > (window.screen.height * 0.6) && event.pageY < (window.screen.height * 0.95))
     {
         button.classList.add('show');
     }

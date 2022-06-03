@@ -13,24 +13,41 @@ function popup() {
                 var btn = document.createElement("a");
 
                 var detail = history[i].split(" ");
+
+
+                var tmpEpisode = parseInt((detail[2].substring(1))) + 1;
+                tmpEpisode = tmpEpisode.toString();
+                while(tmpEpisode.length < detail[2].length -1)
+                {
+                    tmpEpisode = 0 + tmpEpisode;
+                }
+                detail[2] = "e"+tmpEpisode;
+
+
+                //detail[0] = series, detail[1] = seasson, detail[2] = episode
                 var newUrl = "https://prehraj.to/hledej/" + detail[0] + "%20" + detail[1] + detail[2] + "?plugin=1&query=1";
-                detail[0] = detail[0].replace("-", " ");
+                detail[0] = detail[0].replaceAll("-", " ");
+                console.log(detail[0]);
 
                 var t = document.createTextNode(detail[0]);
                 var span = document.createElement("span");
                 var s = document.createTextNode(detail[1] + " " + detail[2]);
                 span.appendChild(s);
 
-                btn.title = history[i];
+                btn.title = detail[0] + " " + detail[1] + detail[2];
                 btn.href = newUrl;
                 btn.appendChild(t);
                 btn.appendChild(span);
                 document.body.appendChild(btn);
 
 
-                btn.addEventListener("click",function()
+                btn.addEventListener("click",function(e)
                 {
-                    window.location.href = newUrl;
+                    var href = e.target.href;
+                    chrome.tabs.query({currentWindow: true, active: true}, function (tab) {
+                        chrome.tabs.update(tab.id, {url: href});
+                  });
+                  window.close();
                 });
             }
         });
