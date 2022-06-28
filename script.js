@@ -47,7 +47,7 @@ if(!cookieExists('recentlySeen'))
     var arr = [];
     var json_str = JSON.stringify(arr);
     //createCookie('mycookie', json_str);
-    document.cookie = "recentlySeen=" + json_str + ";" + "expires="+ new Date(new Date().getTime()+60*60*1000*24*7).toGMTString()+";path=/";
+    document.cookie = "recentlySeen=" + json_str + ";" + "expires="+ new Date(new Date().getTime()+60*60*1000*24*31).toGMTString()+";path=/";
 }
 
 var cookies = getCookie('recentlySeen');
@@ -153,7 +153,7 @@ button.addEventListener ("click", function() {
 
     //encode array
     var json_str = JSON.stringify(history);
-    document.cookie = "recentlySeen=" + json_str + ";" + "expires="+ new Date(new Date().getTime()+60*60*1000*24*7).toGMTString()+";path=/";
+    document.cookie = "recentlySeen=" + json_str + ";" + "expires="+ new Date(new Date().getTime()+60*60*1000*24*31).toGMTString()+";path=/";
 
 
     
