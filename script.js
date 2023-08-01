@@ -1,5 +1,3 @@
-console.log('Hello world!');
-
 document.cookie = "history=" + "stranger things" + ";" + "expires="+ new Date(new Date().getTime()+60*60*1000*24*7).toGMTString()+";path=/"; //cookie will dissappear after 7 days (not quite truth, cause it will probably reset after each load :/ )
 
 //kind of pointless... it is read-only
@@ -40,6 +38,23 @@ function isInArray(array, substring)
     
 }
 
+// Function to send a message to the background script requesting the saved setting
+function getSavedSetting(settingName) {
+    chrome.runtime.sendMessage({ setting: settingName }, function (response) {
+        if (response) {
+            if(response.autoPlay) {
+                let video = document.querySelector('#player video');
+                video.play();
+            }
+            //TODO other settings
+        }
+    });
+}
+  
+  // Call the function to get the saved setting when your content script runs
+  getSavedSetting("getAutoPlay");
+  
+
 //initialize cookies history
 if(!cookieExists('recentlySeen'))
 {
@@ -70,10 +85,10 @@ console.log(json_str);*/
 // 1. Create the button
 var button = document.createElement("button");
 button.innerHTML = "Next episode";
-button.className = "next-btn"; 
+button.id = "next-btn"; 
 
 // 2. Append somewhere
-var body = document.querySelector(".jw-media"); //button uvnitř videa
+var body = document.querySelector("#player"); //button uvnitř videa
 //var body = document.getElementsByTagName("body")[0];
 if(body != undefined)
 {
@@ -155,6 +170,8 @@ button.addEventListener ("click", function() {
     var json_str = JSON.stringify(history);
     document.cookie = "recentlySeen=" + json_str + ";" + "expires="+ new Date(new Date().getTime()+60*60*1000*24*31).toGMTString()+";path=/";
 
+    //carry the name of video to script1.js to find the most accurate one
+    document.cookie = "compareString=" + document.querySelector('.video-detail-title').innerText + ";" + "expires="+ new Date(new Date().getTime()+60*60*1000*24*1).toGMTString()+";path=/";
 
     
 
@@ -176,6 +193,6 @@ function mousemove(event){
         if(button.classList.contains('show'))
              button.classList.remove('show');
     }
-  }
+}
 
-  window.addEventListener('mousemove', mousemove);
+window.addEventListener('mousemove', mousemove);

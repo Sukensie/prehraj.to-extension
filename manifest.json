@@ -1,7 +1,7 @@
 {
   "name": "Přehraj.to autoplay",
-  "version": "1.0.0",
-  "description": "Automatické spouštění dalších dílů na přehraj.to 1",
+  "version": "1.0.1",
+  "description": "Automatické spouštění dalších dílů na přehraj.to --dev",
   "manifest_version": 3,
   "author": "Tomáš Souček",
   "action":{
@@ -9,7 +9,7 @@
     "default_title": "Přehraj.to autoplay"
   },
   "permissions": [
-    "tabs"
+    "tabs", "storage"
   ],
   "content_scripts" : [
       {
@@ -23,5 +23,8 @@
         "js": ["script1.js"],
         "run_at": "document_end"
     }
-  ]
+  ],
+  "background": {
+    "service_worker": "service-worker.js"
+  }
 }
