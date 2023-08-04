@@ -1,35 +1,8 @@
-document.cookie = "history=" + "stranger things" + ";" + "expires="+ new Date(new Date().getTime()+60*60*1000*24*7).toGMTString()+";path=/"; //cookie will dissappear after 7 days (not quite truth, cause it will probably reset after each load :/ )
-
-//kind of pointless... it is read-only
-function getAllCookies ()
-{
-    return document.cookie.split('; ').reduce((prev, current) => {
-        const [name, ...value] = current.split('=');
-        prev[name] = value.join('=');
-        return prev;
-      }, {});
-}
-
-function getCookie(name)
-{
-    var object = getAllCookies();
-    return object[name];
-}
-
-function deleteCookie(name) {
-    document.cookie = name +"=; Path=/; Expires=Thu, 01 Jan 1970 00:00:01 GMT;";
-}
-
-function cookieExists(name)
-{
-    var index = document.cookie.indexOf(name);
-    return (index == -1 ? false : true);
-}
-
-function isInArray(array, substring)
+//check if series are in array of recently seen series
+function isInArray(array, seriesName)
 {
     const index = array.findIndex(element => {
-        if (element.includes(substring)) {
+        if ((element.series).includes(seriesName)) {
           return true;
         }
       });
@@ -40,46 +13,42 @@ function isInArray(array, substring)
 
 // Function to send a message to the background script requesting the saved setting
 function getSavedSetting(settingName) {
-    chrome.runtime.sendMessage({ setting: settingName }, function (response) {
-        if (response) {
-            if(response.autoPlay) {
-                let video = document.querySelector('#player video');
-                video.play();
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({ setting: settingName }, function (response) {
+            if (response) {
+                if (response.autoPlay) {
+                    let video = document.querySelector('video');
+                    if (video !== null) {
+                        video.play();
+                    }
+                }
+                if (response.recentlySeen) {
+                    console.log("recently seen from service worker123");
+                    console.log(response.recentlySeen);
+                    resolve(response.recentlySeen);
+                }
+                //TODO other settings
+
+                resolve(true);
             }
-            //TODO other settings
-        }
+        });
     });
 }
-  
-  // Call the function to get the saved setting when your content script runs
-  getSavedSetting("getAutoPlay");
-  
 
-//initialize cookies history
-if(!cookieExists('recentlySeen'))
-{
-    //encode array
-    var arr = [];
-    var json_str = JSON.stringify(arr);
-    //createCookie('mycookie', json_str);
-    document.cookie = "recentlySeen=" + json_str + ";" + "expires="+ new Date(new Date().getTime()+60*60*1000*24*31).toGMTString()+";path=/";
+//load all settings from service worker
+async function init() {
+    await getSavedSetting("getAutoPlay");
+    await getSavedSetting("getRecentlySeen").then((setting) => {
+        recentlySeen = setting;
+    });
 }
 
-var cookies = getCookie('recentlySeen');
-
-chrome.runtime.onMessage.addListener(
-    function(request, sender, sendResponse) {
-        sendResponse({cookies: cookies});
-    }
-  );
+//global variables
+var recentlySeen;
 
 
-/*
-//decode array
-json_str = getCookie('mycookie');
-arr = JSON.parse(json_str);
-console.log(arr);
-console.log(json_str);*/
+//init script logic
+init();
 
 
 // 1. Create the button
@@ -88,16 +57,17 @@ button.innerHTML = "Next episode";
 button.id = "next-btn"; 
 
 // 2. Append somewhere
-var body = document.querySelector("#player"); //button uvnitř videa
-//var body = document.getElementsByTagName("body")[0];
-if(body != undefined)
+var videoContainer = document.querySelector("video");
+videoContainer = (videoContainer ? videoContainer.parentNode : null); //button inside of video
+
+if(videoContainer)
 {
-    body.appendChild(button);
+    videoContainer.appendChild(button);
 }
 
 
 // 3. Add event handler
-button.addEventListener ("click", function() {
+button.addEventListener("click", function() {
 
     let currUrl = window.location.href; 
     var seasonEpisode = currUrl.match(/s[0-9]*[0-9]e[0-9]*[0-9]/); //returns an array --works only for s01e02 not 01x02
@@ -138,46 +108,35 @@ button.addEventListener ("click", function() {
     var series = currUrl.substring(0, match.index);
     series = series.replace('https://prehraj.to/', '');
     
-    var newUrl = "https://prehraj.to/hledej/" + series + "%20s" + season + "e" + episode + "?plugin=1&query=1";
+    var newUrl = "https://prehraj.to/hledej/" + series.replace('-', '%20') + "%20s" + season + "e" + episode + "?plugin=1&query=1";
+    
+    series = series.replace('-', ' ');
 
 
-    //decode array
-    json_str = getCookie('recentlySeen');
-    var history = JSON.parse(json_str);
-
-
-    var index = isInArray(history, series);
+    var index = isInArray(recentlySeen, series);
     if(index != -1)
     {
-        //move already existing series to first index and update seasson and episode
-        history.splice(index,1);
-        history.unshift(series + " s" + season + " e" + episode);
+        //delete already present series from array so that it could be later moved to first index
+        recentlySeen.splice(index,1);  
     }
-    else
+
+    //prepend series to the beginning of recentlySeen array
+    recentlySeen.unshift({series: series, season: season, episode: episode});
+
+    while(recentlySeen.length > 5)
     {
-        history.unshift(series + " s" + season + " e" + episode);//akorát chci číslo epizody o 1 větší //unshift = prepend
+        recentlySeen.pop();
     }
-    while(history.length > 5)
-    {
-        history.pop();
-    }
-    console.log(history);
 
-    
+    //save new recently seen episodes array
+    chrome.runtime.sendMessage({ setting: "setRecentlySeen", value: recentlySeen });
 
 
-    //encode array
-    var json_str = JSON.stringify(history);
-    document.cookie = "recentlySeen=" + json_str + ";" + "expires="+ new Date(new Date().getTime()+60*60*1000*24*31).toGMTString()+";path=/";
+    //send compare string to script1.js to find the most accurate video name
+    chrome.storage.session.set({ compareString: document.querySelector('h1 span').innerText });
 
-    //carry the name of video to script1.js to find the most accurate one
-    document.cookie = "compareString=" + document.querySelector('.video-detail-title').innerText + ";" + "expires="+ new Date(new Date().getTime()+60*60*1000*24*1).toGMTString()+";path=/";
 
-    
-
-    console.log(newUrl);
     window.location.href = newUrl;
-
     //window.open(newUrl, '_blank');
 });
 

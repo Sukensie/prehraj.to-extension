@@ -1,25 +1,28 @@
 //open new episode from query
-var video = document.querySelector('.columns');
-if(video != undefined && video.children.length > 0)
-{
-    //var link = video.children[0].children[0].href + "?plugin=1";
+var videosArr = document.querySelectorAll('.video__title');
 
-    let compareString = getCookie("compareString");
-    let maxSimilarity = 0;
-    let correctIndex = 0;
-    for(let i = 0; i < video.children.length; i++) {
-        let currSimilarity = similarity(compareString.toLowerCase().trim(), video.children[i].children[0].children[1].innerText.toLowerCase().trim());
+if(videosArr != undefined && videosArr.length > 0)
+{   
+    chrome.storage.session.get(["compareString"]).then((result) => {
+        console.log("Value currently is " + result.compareString);
 
-        if( currSimilarity > maxSimilarity) {
-            maxSimilarity = currSimilarity;
-            correctIndex = i;
+        let compareString = result.compareString || "";
+        let maxSimilarity = 0;
+        let correctIndex = 0;
+
+        for(let i = 0; i < videosArr.length; i++) {
+            let currSimilarity = similarity(compareString.toLowerCase().trim(), videosArr[i].innerText.toLowerCase().trim());
+
+            if( currSimilarity > maxSimilarity) {
+                maxSimilarity = currSimilarity;
+                correctIndex = i;
+            }
         }
-    }
 
-    var link = video.children[correctIndex].children[0].href + "?plugin=1";
-    window.location.href = link;
+        window.location.href = videosArr[correctIndex].parentElement.parentElement.href + "?plugin=1";
+    });
 }
-else
+else //if no video was found - probably last episode of season => increment season number
 {
     let currUrl = window.location.href; 
     var seasonEpisode = currUrl.match(/s[0-9]*[0-9]e[0-9]*[0-9]/); //returns an array
@@ -49,7 +52,7 @@ else
     
     
     if((currUrl.match(/\//g) || []).length <= 4) {
-        window.location.href = newUrl;
+        //window.location.href = newUrl;
     }
 }
 
@@ -94,20 +97,4 @@ function editDistance(s1, s2) {
         costs[s2.length] = lastValue;
     }
     return costs[s2.length];
-}
-
-//kind of pointless... it is read-only
-function getAllCookies ()
-{
-    return document.cookie.split('; ').reduce((prev, current) => {
-        const [name, ...value] = current.split('=');
-        prev[name] = value.join('=');
-        return prev;
-      }, {});
-}
-
-function getCookie(name)
-{
-    var object = getAllCookies();
-    return object[name];
 }

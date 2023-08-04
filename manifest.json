@@ -1,7 +1,7 @@
 {
   "name": "Přehraj.to autoplay",
-  "version": "1.0.1",
-  "description": "Automatické spouštění dalších dílů na přehraj.to --dev",
+  "version": "1.0.2",
+  "description": "Automatické spouštění dalších dílů na přehraj.to --dev. S/O to Matěj Vitoušek",
   "manifest_version": 3,
   "author": "Tomáš Souček",
   "action":{
