@@ -39,7 +39,7 @@ function getSavedSetting(settingName) {
 async function init() {
     await getSavedSetting("getAutoPlay");
     await getSavedSetting("getRecentlySeen").then((setting) => {
-        recentlySeen = setting;
+        setting === true ? recentlySeen = [] : recentlySeen = setting; //assign empty arr if async true received (meaning no recent show in memmory)
     });
 }
 
