@@ -1,3 +1,23 @@
+document.addEventListener("DOMContentLoaded", function() {
+    popup();
+
+    //auto play checkbox
+    const autoPlay = document.querySelector('#autoplay');
+
+    //set chechbox UI to be checked/unchecked
+    chrome.runtime.sendMessage({ setting: "getAutoPlay" }, function (response) {
+        if (response && response.autoPlay) {
+            autoPlay.checked = response.autoPlay;
+        }
+    });
+
+    //if auto play checkbox changes value, send message to background service worker that will save it to chrome storage
+    autoPlay.addEventListener("change", function () {
+        chrome.runtime.sendMessage({ setting: "setAutoPlay", value: autoPlay.checked });
+        //window.close();
+    });
+});
+
 function popup() {
     chrome.tabs.query({currentWindow: true, active: true}, function (tabs)
     {
@@ -50,23 +70,3 @@ function popup() {
         });
    });
 }
-
-document.addEventListener("DOMContentLoaded", function() {
-    popup();
-
-    //auto play checkbox
-    const autoPlay = document.querySelector('#autoplay');
-
-    //set chechbox UI to be checked/unchecked
-    chrome.runtime.sendMessage({ setting: "getAutoPlay" }, function (response) {
-        if (response && response.autoPlay) {
-            autoPlay.checked = response.autoPlay;
-        }
-    });
-
-    //if auto play checkbox changes value, send message to background service worker that will save it to chrome storage
-    autoPlay.addEventListener("change", function () {
-        chrome.runtime.sendMessage({ setting: "setAutoPlay", value: autoPlay.checked });
-        //window.close();
-    });
-});

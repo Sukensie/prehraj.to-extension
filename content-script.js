@@ -1,48 +1,3 @@
-//check if series are in array of recently seen series
-function isInArray(array, seriesName)
-{
-    const index = array.findIndex(element => {
-        if ((element.series).includes(seriesName)) {
-          return true;
-        }
-      });
-
-    return index;
-    
-}
-
-// Function to send a message to the background script requesting the saved setting
-function getSavedSetting(settingName) {
-    return new Promise((resolve, reject) => {
-        chrome.runtime.sendMessage({ setting: settingName }, function (response) {
-            if (response) {
-                if (response.autoPlay) {
-                    let video = document.querySelector('video');
-                    if (video !== null) {
-                        video.play();
-                    }
-                }
-                if (response.recentlySeen) {
-                    console.log("recently seen from service worker123");
-                    console.log(response.recentlySeen);
-                    resolve(response.recentlySeen);
-                }
-                //TODO other settings
-
-                resolve(true);
-            }
-        });
-    });
-}
-
-//load all settings from service worker
-async function init() {
-    await getSavedSetting("getAutoPlay");
-    await getSavedSetting("getRecentlySeen").then((setting) => {
-        setting === true ? recentlySeen = [] : recentlySeen = setting; //assign empty arr if async true received (meaning no recent show in memmory)
-    });
-}
-
 //global variables
 var recentlySeen;
 
@@ -155,3 +110,49 @@ function mousemove(event){
 }
 
 window.addEventListener('mousemove', mousemove);
+
+
+//check if series are in array of recently seen series
+function isInArray(array, seriesName)
+{
+    const index = array.findIndex(element => {
+        if ((element.series).includes(seriesName)) {
+          return true;
+        }
+      });
+
+    return index;
+    
+}
+
+// Function to send a message to the background script requesting the saved setting
+function getSavedSetting(settingName) {
+    return new Promise((resolve, reject) => {
+        chrome.runtime.sendMessage({ setting: settingName }, function (response) {
+            if (response) {
+                if (response.autoPlay) {
+                    let video = document.querySelector('video');
+                    if (video !== null) {
+                        video.play();
+                    }
+                }
+                if (response.recentlySeen) {
+                    console.log("recently seen from service worker123");
+                    console.log(response.recentlySeen);
+                    resolve(response.recentlySeen);
+                }
+                //TODO other settings
+
+                resolve(true);
+            }
+        });
+    });
+}
+
+//load all settings from service worker
+async function init() {
+    await getSavedSetting("getAutoPlay");
+    await getSavedSetting("getRecentlySeen").then((setting) => {
+        setting === true ? recentlySeen = [] : recentlySeen = setting; //assign empty arr if async true received (meaning no recent show in memmory)
+    });
+}
